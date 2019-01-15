@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/justinas/alice"
 	"log"
 	"net/http"
 	"strconv"
@@ -65,6 +66,9 @@ func mainLogic(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	mainHandler := http.HandlerFunc(mainLogic)
-	http.Handle("/city", filterContentType(setServerTimeCookie(mainHandler)))
+
+	chain := alice.New(filterContentType, setServerTimeCookie).Then(mainHandler)
+	//http.Handle("/city", filterContentType(setServerTimeCookie(mainHandler)))
+	http.Handle("/city", chain)
 	http.ListenAndServe(":8000", nil)
 }
