@@ -18,28 +18,26 @@ type Args struct {
 
 // Book struct holds Book JSON structure
 type Book struct {
-	Id     string `json:"string, omitempty"`
+	Id     string `json:"id, omitempty"`
 	Name   string `json:"name, omitempty"`
 	Author string `json:"author, omitempty"`
 }
 
 type JSONServer struct{}
 
-// GiveBookDetail
 func (t *JSONServer) GiveBookDetail(r *http.Request, args *Args, reply *Book) error {
 	var books []Book
 
 	// Read JSON file and load data
-	raw, readerr := ioutil.ReadFile("./books.json")
-	if readerr != nil {
-		log.Println("error:", readerr)
+	raw, err := ioutil.ReadFile("/home/jrakhman/go/src/github.com/Juniar-Rakhman/GoRestful/sandbox/03_RPC/books.json")
+	if err != nil {
+		log.Println("error:", err)
 		os.Exit(1)
 	}
 
 	// Unmarshal JSON raw data into books array
-	marshalErr := jsonparse.Unmarshal(raw, &books)
-	if marshalErr != nil {
-		log.Println("error:", marshalErr)
+	if err := jsonparse.Unmarshal(raw, &books); err != nil {
+		log.Println("error:", err)
 		os.Exit(1)
 	}
 
@@ -57,6 +55,7 @@ func main() {
 	// Create a new RPC server
 	s := rpc.NewServer() // Register the type of data requested as JSON
 	s.RegisterCodec(json.NewCodec(), "application/json")
+
 	// Register the service by creating a new JSON server
 	s.RegisterService(new(JSONServer), "")
 	r := mux.NewRouter()
